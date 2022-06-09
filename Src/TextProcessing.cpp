@@ -17,10 +17,12 @@ std::string CacheMemoStorReader (std::string LongSubstr) {
 	}
 	if ((std::stoi(LongSubstr.substr(4,2)) / 2) > 5 && StringOut.substr(0,1) == "0") {
 		StringOut = StringOut +
-				std::bitset<4>(std::stoi(LongSubstr.substr(4,2))).to_string();
+				std::bitset<4>(std::stoi(LongSubstr.substr(4,2))).to_string() +
+				"00";
 	} else if ((std::stoi(LongSubstr.substr(4,2)) / 2) <= 5 && StringOut.substr(0,1) == "0") {
 		StringOut = StringOut +
-				std::bitset<4>(std::stoi(LongSubstr.substr(4,1))).to_string();
+				std::bitset<4>(std::stoi(LongSubstr.substr(4,1))).to_string() +
+				"00";
 	} else if ((std::stoi(LongSubstr.substr(6,2)) / 2) > 5 && StringOut.substr(0,1) == "1") {
 		StringOut = StringOut +
 				std::bitset<5>(std::stoi(LongSubstr.substr(6,2))).to_string();
@@ -61,13 +63,11 @@ std::string Move (std::string Args, std::string Instruction) {
 	if (Instruction.substr(2,1) == "0" && Args.substr(5,1) == " ") {
 		Instruction = Instruction +
 				std::bitset<4>(std::stoi(Args.substr(4,1))).to_string() +
-				CacheMemoStorReader(Args.substr(6,9)) +
-				"00";
+				CacheMemoStorReader(Args.substr(6,9));
 	} else if (Instruction.substr(2,1) == "0" && Args.substr(5,1) != " ") {\
 		Instruction = Instruction +
 				std::bitset<4>(std::stoi(Args.substr(4,2))).to_string() +
-				CacheMemoStorReader(Args.substr(7,10)) +
-				"00";
+				CacheMemoStorReader(Args.substr(7,10));
 	}
 	if (Args.substr(7,1) == " " && Instruction.substr(2,1) == "1") {
 		Instruction = Instruction +
@@ -86,9 +86,23 @@ std::string Move (std::string Args, std::string Instruction) {
 	return Instruction;
 }
 
-int Clear (std::string Args) {
-	return 0;
-
+std::string Clear (std::string Args, std::string Instruction) {
+	std::string LongSubstr = Args.substr(0,4);
+	if (LongSubstr == "CACH") {
+		Instruction = Instruction + "11" +
+				std::bitset<4>(std::stoi(Args.substr(4,2))).to_string() +
+				"00000000"; // could probably fit 2 clears in 2 bytes :P
+	} else if (LongSubstr == "MEMO") {
+		Instruction = Instruction + "10" +
+				std::bitset<4>(std::stoi(Args.substr(4,2))).to_string() +
+				"00000000";
+	} else if (LongSubstr == "STOR") {
+		Instruction = Instruction + "0" +
+				std::bitset<2>(std::stoi(Args.substr(4,1))).to_string() +
+				std::bitset<5>(std::stoi(Args.substr(6,2))).to_string() +
+				"000000";
+	}
+	return Instruction;
 }
 
 std::string Goto (std::string Args, std::string Instruction) {
@@ -124,22 +138,23 @@ std::string Goto (std::string Args, std::string Instruction) {
 	return Instruction;
 }
 
-int Declare (std::string Args) {
-	return 0;
-}
+// not technically necessary
+//int Declare (std::string Args) {
+//	return 0;
+//}
 
 int main () {
 	std::string Line;
 	std::getline(std::cin, Line);
-	//TODO create variable for substr instead of recalling function every time (also maybe use switch with pointers?
+	//TODO create variable for substr instead of recalling function every time (also maybe use switch with pointers?)
 	if (Line.substr(0,4) == "GOTO") {
 		std::cout << Goto(Line.substr(4,Line.length()), "10") << "0000" << std::endl;
 	} else if (Line.substr(0,4) == "MOVE") {
 		std::cout << Move(Line.substr(5,Line.length()), "00") << std::endl;
 	} else if (Line.substr(0,4) == "CLER") {
-		std::cout << Clear(Line.substr(5,Line.length())) << std::endl;
-	} else if (Line.substr(0,4) == "DECL") {
-		std::cout << Declare(Line.substr(5,Line.length())) << std::endl;
+		std::cout << Clear(Line.substr(5,Line.length()), "01") << std::endl;
+	//} else if (Line.substr(0,4) == "DECL") {
+		//std::cout << Declare(Line.substr(5,Line.length())) << std::endl;
 	} else {
 		std::cout << "Error in instruction on line 1\nExiting...\n";
 		exit(EXIT_FAILURE);
