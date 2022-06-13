@@ -50,7 +50,7 @@ std::string Move (std::string Args, std::string Instruction) {
 	std::string LongSubstr;
 	if (InstructionParams == "STOR") {
 		Instruction = Instruction + "11" + std::bitset<2>(std::stoi(Args.substr(4,1))).to_string();
-	} else if (InstructionParams == "STAT") {
+	} else if (InstructionParams == "READ") {
 		Instruction = Instruction + "10" + std::bitset<2>(std::stoi(Args.substr(4,1))).to_string();
 	} else if (InstructionParams == "CACH") {
 		Instruction = Instruction + "00";
@@ -138,23 +138,41 @@ std::string Goto (std::string Args, std::string Instruction) {
 	return Instruction;
 }
 
-// not technically necessary
-//int Declare (std::string Args) {
-//	return 0;
-//}
+std::string Declare (std::string Args, std::string Instruction) {
+	std::string SubInstruction = CacheMemoStorReader(Args);
+	switch (std::stoi(SubInstruction.substr(0,1))) {
+	case 1:
+	Instruction = Instruction + SubInstruction;
+	if (Args.substr(8,1) == " ") {
+		Instruction = Instruction + std::bitset<6>(std::stoi(Args.substr(9,2))).to_string();
+	} else if (Args.substr(8,1) != " ") {
+		Instruction = Instruction + std::bitset<6>(std::stoi(Args.substr(8,2))).to_string();
+	}
+	break;
+	case 0:
+	Instruction = Instruction + SubInstruction.substr(0,6);
+	if (Args.substr(6,1) == " ") {
+		Instruction = Instruction + std::bitset<8>(std::stoi(Args.substr(7,2))).to_string();
+	} else if (Args.substr(6,1) != " ") {
+		Instruction = Instruction + std::bitset<8>(std::stoi(Args.substr(6,2))).to_string();
+	}
+	break;
+	}
+	return Instruction;
+}
 
 int main () {
 	std::string Line;
 	std::getline(std::cin, Line);
-	//TODO create variable for substr instead of recalling function every time (also maybe use switch with pointers?)
+	//TODO create variable for substr instead of recalling function every time (also maybe use switch)
 	if (Line.substr(0,4) == "GOTO") {
 		std::cout << Goto(Line.substr(4,Line.length()), "10") << "0000" << std::endl;
 	} else if (Line.substr(0,4) == "MOVE") {
 		std::cout << Move(Line.substr(5,Line.length()), "00") << std::endl;
 	} else if (Line.substr(0,4) == "CLER") {
 		std::cout << Clear(Line.substr(5,Line.length()), "01") << std::endl;
-	//} else if (Line.substr(0,4) == "DECL") {
-		//std::cout << Declare(Line.substr(5,Line.length())) << std::endl;
+	} else if (Line.substr(0,4) == "DECL") {
+		std::cout << Declare(Line.substr(5,Line.length()), "11") << std::endl;
 	} else {
 		std::cout << "Error in instruction on line 1\nExiting...\n";
 		exit(EXIT_FAILURE);
