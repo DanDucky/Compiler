@@ -7,13 +7,13 @@ std::string InstructionCall (std::string Line, int LineNum) {
 	std::string Substr = Line.substr(0,4);
 	std::string Instruction;
 	if (Substr == "GOTO") {
-		Instruction = Goto(Line.substr(4,Line.length()), "10") + "0000";
+		Instruction = Goto(Line.substr(4,Line.length()), "10", LineNum) + "0000";
 	} else if (Substr == "MOVE") {
-		Instruction = Move(Line.substr(5,Line.length()), "00");
+		Instruction = Move(Line.substr(5,Line.length()), "00", LineNum);
 	} else if (Substr == "CLER") {
-		Instruction = Clear(Line.substr(5,Line.length()), "01");
+		Instruction = Clear(Line.substr(5,Line.length()), "01", LineNum);
 	} else if (Substr == "DECL") {
-		Instruction = Declare(Line.substr(5,Line.length()), "11");
+		Instruction = Declare(Line.substr(5,Line.length()), "11", LineNum);
 	} else {
 		std::cout << "\033[1;31mError\033[0m in instruction on line " << LineNum << "\nExiting...\n";
 		exit(EXIT_FAILURE);
