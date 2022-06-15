@@ -60,22 +60,21 @@ std::string Move (std::string Args, std::string Instruction, int Line) {
 	if (Instruction.substr(2,1) == "0" && Args.substr(5,1) == " ") {
 		Instruction = Instruction +
 				std::bitset<4>(std::stoi(Args.substr(4,1))).to_string() +
-				CacheMemoStorReader(Args.substr(6,9));
+				CacheMemoStorReader(Args.substr(6,9), Line);
 	} else if (Instruction.substr(2,1) == "0" && Args.substr(5,1) != " ") {\
 		Instruction = Instruction +
 				std::bitset<4>(std::stoi(Args.substr(4,2))).to_string() +
-				CacheMemoStorReader(Args.substr(7,10));
-	}
-	if (Args.substr(7,1) == " " && Instruction.substr(2,1) == "1") {
+				CacheMemoStorReader(Args.substr(7,10), Line);
+	} else if (Args.substr(7,1) == " " && Instruction.substr(2,1) == "1") {
 		Instruction = Instruction +
 				std::bitset<5>(std::stoi(Args.substr(6,1))).to_string() +
-				CacheMemoReader(Args.substr(8,4)) +
+				CacheMemoReader(Args.substr(8,4), Line) +
 				std::bitset<4>(std::stoi(Args.substr(12,2))).to_string();
 	} else if (Args.substr(7,1) != " " && Instruction.substr(2,1) == "1") {
 		Instruction = Instruction +
 				std::bitset<5>(std::stoi(Args.substr(6,2))).to_string() +
-				CacheMemoReader(Args.substr(9,4)) +
-				std::bitset<4>(std::stoi(Args.substr(12,2))).to_string();;
+				CacheMemoReader(Args.substr(9,4), Line) +
+				std::bitset<4>(std::stoi(Args.substr(13,2))).to_string();;
 	} else if (Instruction.substr(2,1) == "1") {
 		std::cout << "\033[1;31mError\033[0m in instruction parameter after \"" << Args.substr(0,6) << "\" on line " << Line << " while attempting to find storage line\nExiting...\n";
 		exit(EXIT_FAILURE);
@@ -139,7 +138,7 @@ std::string Goto (std::string Args, std::string Instruction, int Line) {
 }
 
 std::string Declare (std::string Args, std::string Instruction, int Line) {
-	std::string SubInstruction = CacheMemoStorReader(Args);
+	std::string SubInstruction = CacheMemoStorReader(Args, Line);
 	switch (std::stoi(SubInstruction.substr(0,1))) {
 	case 1:
 	Instruction = Instruction + SubInstruction;

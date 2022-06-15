@@ -25,7 +25,7 @@ int main (int argc, char** argv) {
     Source.open(argv[1]);
     std::string Line;
     int LineNum = 0;
-    std::ofstream Binary("Out.dab");
+    std::ofstream Binary(argv[2]);
     std::string LineOut;
     int ArrowLength;
     int Arrow = 0;
@@ -46,7 +46,7 @@ int main (int argc, char** argv) {
     		auto Duration = duration_cast<microseconds>(stop - start);
     		std::cout << "> " << LineOut << " | Line " << LineNum << " \033[1;32mcompleted\033[0m in " << Duration.count() << " microseconds \n";
     	}
-    	std::cout << "Successfully wrote " << LineNum << " line(s) to Out.dab\n";
+    	std::cout << "Successfully wrote " << LineNum << " line(s) to " << argv[2] << "\n";
     } else {
     std::cout << "Error in opening source file, file does not exist\nExiting...\n";
     exit(EXIT_FAILURE);
